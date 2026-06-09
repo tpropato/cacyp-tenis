@@ -126,6 +126,14 @@ onSnapshot(groupRef, snap=>{
 
 function setSync(text, cls){ const el=document.getElementById("syncStatus"); el.textContent=text; el.className="sync "+cls; }
 async function savePatch(patch){ await setDoc(groupRef, {...patch, updatedAt:new Date().toISOString()}, {merge:true}); }
+async function saveVoter(id, payload){
+  try {
+    await updateDoc(groupRef, {[`voters.${id}`]: payload, updatedAt:new Date().toISOString()});
+  } catch(e) {
+    console.warn('updateDoc failed, creating document and retrying', e);
+    await setDoc(groupRef, {voters:{[id]:payload}, courtSlots: appData.courtSlots||[], updatedAt:new Date().toISOString()}, {merge:true});
+  }
+}
 
 function buildOnePeriodGrid(period, mode){
   const cs=courtSet(), votes=buildVotesIndex();
@@ -163,11 +171,28 @@ function updateHint(){ const name=document.getElementById('playerName').value.tr
 
 document.getElementById('playerName').addEventListener('input', updateHint);
 window.loadMyVote=()=>{ const name=document.getElementById('playerName').value.trim(); if(!name){showToast('Escribí tu nombre primero'); return;} const v=(appData.voters||{})[safeId(name)]; if(!v){showToast('No encontré un voto con ese nombre'); return;} selectedCombos=new Set((v.combos||[]).filter(isSlotPlayable)); buildGrid('voteGrid','vote'); updateHint(); showToast('Voto cargado para editar'); };
-window.submitVote=async()=>{ const name=document.getElementById('playerName').value.trim(); if(!name||selectedCombos.size===0) return; const combos=[...selectedCombos].filter(isSlotPlayable); if(!combos.length){showToast('Elegí horarios disponibles'); return;} const id=safeId(name); await savePatch({voters:{[id]:{name,combos,updatedAt:new Date().toISOString()}}}); selectedCombos.clear(); document.getElementById('playerName').value=''; updateHint(); showToast('🎾 Disponibilidad registrada'); };
+window.submitVote=async()=>{
+  const name=document.getElementById('playerName').value.trim();
+  if(!name||selectedCombos.size===0) return;
+  const combos=[...selectedCombos].filter(isSlotPlayable);
+  if(!combos.length){showToast('Elegí horarios disponibles'); return;}
+  const id=safeId(name);
+  const payload={name,combos,updatedAt:new Date().toISOString()};
+  try{
+    await saveVoter(id,payload);
+    selectedCombos.clear();
+    document.getElementById('playerName').value='';
+    updateHint();
+    showToast('🎾 Disponibilidad registrada');
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo guardar en Firebase');
+  }
+};
 window.removeVoter=async(id)=>{ if(!isAdmin){showToast('Solo el organizador puede eliminar votos'); return;} if(!confirm('¿Eliminar este voto?')) return; await updateDoc(groupRef,{[`voters.${id}`]:deleteField(), updatedAt:new Date().toISOString()}); };
 window.unlockAdmin=()=>{ if(document.getElementById('adminPassword').value!==ADMIN_PASSWORD){showToast('Contraseña incorrecta'); return;} isAdmin=true; document.getElementById('adminPanel').classList.add('show'); buildGrid('courtGrid','admin'); showToast('Modo organizador activo'); };
-window.resetVoting=async()=>{ if(!isAdmin) return; const ok=confirm('¿Seguro que querés reiniciar la votación? Se borran votos y canchas cargadas.'); if(!ok) return; await savePatch({voters:{}, courtSlots:[]}); selectedCombos.clear(); showToast('Votación reiniciada'); };
-window.clearCourtSlots=async()=>{ if(!isAdmin) return; await savePatch({courtSlots:[]}); showToast('Canchas limpiadas'); };
+window.resetVoting=async()=>{ if(!isAdmin) return; const ok=confirm('¿Seguro que querés reiniciar la votación? Se borran votos y canchas cargadas.'); if(!ok) return; await setDoc(groupRef,{voters:{}, courtSlots:[], updatedAt:new Date().toISOString()}); selectedCombos.clear(); showToast('Votación reiniciada'); };
+window.clearCourtSlots=async()=>{ if(!isAdmin) return; await updateDoc(groupRef,{courtSlots:[], updatedAt:new Date().toISOString()}); showToast('Canchas limpiadas'); };
 window.selectCourtPreset=async(type)=>{ if(!isAdmin) return; const cs=courtSet(); WEEK_DAYS.forEach(day=>ALL_SLOTS.forEach(slot=>{ const hour=Number(slot.id.slice(0,2)); const dow=new Date(day.key+'T00:00:00').getDay(); const isWeekend=[0,6].includes(dow); const ok=(type==='week_afternoon'&&!isWeekend&&hour>=16&&hour<19)||(type==='week_evening'&&!isWeekend&&hour>=18&&hour<=21)||(type==='weekend'&&isWeekend&&hour>=9&&hour<13); if(ok) cs.add(comboKey(day.key,slot.id)); })); await savePatch({courtSlots:[...cs].sort()}); showToast('Canchas actualizadas'); };
 function applyCellChange(mode,k,shouldSelect){ if(mode==='admin'){ const cs=courtSet(); shouldSelect?cs.add(k):cs.delete(k); appData.courtSlots=[...cs].sort(); adminChangedDuringDrag=true; } else { if(!isSlotPlayable(k)) return; shouldSelect?selectedCombos.add(k):selectedCombos.delete(k); } }
 window.startCellDrag=(event,mode,k)=>{ if(event.button!==undefined&&event.button!==0) return; event.preventDefault(); isDragging=true; dragMode=mode; lastDragKey=k; adminChangedDuringDrag=false; dragShouldSelect=mode==='admin'?!courtSet().has(k):!selectedCombos.has(k); applyCellChange(mode,k,dragShouldSelect); buildGrid(mode==='admin'?'courtGrid':'voteGrid',mode); if(mode==='admin') {buildGrid('voteGrid','vote'); updateCourtPill();} updateHint(); };
