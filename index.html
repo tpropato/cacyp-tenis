@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎾 ¿Cuándo jugamos?</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,230,58,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(200,230,58,.035) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}.wrap{max-width:1080px;margin:0 auto;padding:34px 16px 80px;position:relative;z-index:1}header{text-align:center;margin-bottom:28px}.logo{display:inline-flex;align-items:center;gap:10px;background:#2d5a1b;border:2px solid #3a7a24;border-radius:100px;padding:7px 20px 7px 10px;margin-bottom:15px}.ball{width:28px;height:28px;background:#c8e63a;border-radius:50%;position:relative;animation:spin 8s linear infinite;flex-shrink:0}.ball::after{content:'';position:absolute;inset:3px;border:2px solid rgba(0,0,0,.25);border-radius:50%;border-top-color:transparent;border-bottom-color:transparent}@keyframes spin{to{transform:rotate(360deg)}}.logo span{font-weight:800;font-size:1rem;letter-spacing:2px;color:#c8e63a;text-transform:uppercase}h1{font-size:clamp(2.4rem,7vw,4.5rem);font-weight:850;line-height:.9;letter-spacing:1px;color:#f5f0e8}h1 em{color:#c8e63a;font-style:normal;display:block}.sub{margin:12px auto 0;color:#9aa4af;font-size:.95rem;max-width:680px;line-height:1.45}.topbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:18px 0 0}.pill{border:1px solid #30363d;background:#161b22;color:#9aa4af;border-radius:999px;padding:7px 12px;font-size:.78rem;font-weight:700}.pill.ok{border-color:#c8e63a;color:#c8e63a;background:rgba(200,230,58,.08)}.card{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:22px;margin-bottom:18px}.slabel{display:flex;align-items:center;gap:8px;font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:1.8px;color:#c8e63a;margin-bottom:14px}.snum{width:22px;height:22px;background:#c8e63a;color:#0d1117;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0}.muted{color:#7d8590;font-size:.82rem;line-height:1.45}input[type=text],input[type=password]{width:100%;background:#21262d;border:1px solid #30363d;border-radius:10px;color:#e6edf3;font-size:1rem;padding:12px 14px;outline:none;transition:border-color .15s}input[type=text]:focus,input[type=password]:focus{border-color:#c8e63a}input::placeholder{color:#7d8590}.row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.btn{border:1px solid #30363d;background:#21262d;color:#e6edf3;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap}.btn:hover{border-color:#c8e63a;color:#c8e63a}.btn.primary{background:#c8e63a;color:#0d1117;border-color:#c8e63a}.btn.primary:hover{background:#a8c220;color:#0d1117}.btn.danger:hover{border-color:#f87171;color:#f87171}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.tab{flex:1;min-width:118px;padding:10px 12px;border-radius:10px;border:1px solid #30363d;background:#21262d;color:#9aa4af;font-size:.86rem;font-weight:800;cursor:pointer;text-align:center}.tab.active{border-color:#c8e63a;color:#c8e63a;background:rgba(200,230,58,.1)}.grid-wrap{overflow-x:auto;border:1px solid #30363d;border-radius:14px;background:#0d1117}.availability-grid{display:grid;grid-template-columns:74px repeat(7,minmax(90px,1fr));min-width:760px}.gh,.th{position:sticky;top:0;z-index:2;background:#21262d;color:#c8e63a;font-weight:850;font-size:.72rem;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid #30363d}.gh{left:0;z-index:3}.cell,.time-head,.day-head{min-height:39px;border-right:1px solid #30363d;border-bottom:1px solid #30363d;display:flex;align-items:center;justify-content:center;text-align:center}.time-head{position:sticky;left:0;z-index:1;background:#161b22;color:#9aa4af;font-variant-numeric:tabular-nums;font-size:.78rem;font-weight:750}.day-head{padding:8px 4px;line-height:1.2}.day-head small{display:block;color:#9aa4af;font-size:.67rem;margin-bottom:2px}.cell{background:#161b22;color:#30363d;cursor:pointer;transition:all .12s;position:relative;user-select:none;touch-action:none}.cell:hover{box-shadow:inset 0 0 0 2px #7d8590}.cell.available{background:rgba(200,230,58,.08);color:#c8e63a}.cell.selected{background:rgba(200,230,58,.26);box-shadow:inset 0 0 0 2px #c8e63a;color:#c8e63a}.cell.closed{background:#0f141a;color:#30363d;cursor:not-allowed}.cell.closed::after{content:'×';font-weight:900}.cell .count{font-size:.78rem;font-weight:900}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.leg{display:inline-flex;align-items:center;gap:6px;color:#9aa4af;font-size:.75rem}.box{width:14px;height:14px;border:1px solid #30363d;border-radius:4px;background:#161b22}.box.av{background:rgba(200,230,58,.08);border-color:#3a7a24}.box.sel{background:rgba(200,230,58,.26);border-color:#c8e63a}.box.closed{background:#0f141a}.hint{font-size:.82rem;color:#7d8590;margin-top:10px;min-height:20px}.hint.on{color:#c8e63a}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px;min-height:26px}.chip{padding:5px 10px;border-radius:100px;background:#21262d;border:1px solid #30363d;font-size:.8rem;color:#e6edf3;display:flex;align-items:center;gap:5px}.chip button{background:none;border:none;color:#7d8590;font-size:.95rem;cursor:pointer;padding:0;line-height:1}.chip button:hover{color:#f87171}.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.fbtn{padding:6px 12px;border-radius:999px;border:1px solid #30363d;background:#21262d;color:#9aa4af;font-size:.76rem;font-weight:800;cursor:pointer}.fbtn.active{border-color:#c8e63a;color:#c8e63a;background:rgba(200,230,58,.1)}.results-list{display:grid;gap:8px}.slot-card{border:1px solid #30363d;background:#21262d;border-radius:12px;overflow:hidden}.slot-top{display:grid;grid-template-columns:110px 88px 1fr auto;gap:10px;align-items:center;padding:10px 12px;cursor:pointer}.slot-top:hover{background:#1c2128}.slot-date{font-size:.82rem;font-weight:850}.slot-hour{font-size:.9rem;font-weight:900;color:#c8e63a;font-variant-numeric:tabular-nums}.bar{height:7px;background:#30363d;border-radius:999px;overflow:hidden}.fill{height:100%;background:#c8e63a;border-radius:999px}.badge{font-size:.68rem;font-weight:900;color:#0d1117;background:#c8e63a;border-radius:999px;padding:3px 8px;white-space:nowrap}.names{padding:0 12px 10px;display:flex;flex-wrap:wrap;gap:5px}.ntag{font-size:.74rem;padding:3px 9px;border-radius:999px;background:#161b22;border:1px solid #30363d;color:#9aa4af}.empty{text-align:center;padding:34px 12px;color:#7d8590;font-size:.9rem}.empty .ico{font-size:2rem;display:block;margin-bottom:8px}.admin{display:none}.admin.show{display:block}.admin-grid{margin-top:14px}.divider{height:1px;background:#30363d;margin:14px 0}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#c8e63a;color:#0d1117;padding:10px 22px;border-radius:100px;font-weight:850;font-size:.88rem;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:100;white-space:nowrap;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0)}.period-section{border:1px solid #30363d;border-radius:14px;overflow:hidden;background:#0d1117;margin-bottom:10px}.period-section summary{list-style:none;cursor:pointer;padding:12px 14px;background:#21262d;color:#e6edf3;font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:10px}.period-section summary::-webkit-details-marker{display:none}.period-section summary::after{content:'+';width:24px;height:24px;border-radius:999px;border:1px solid #30363d;display:flex;align-items:center;justify-content:center;color:#c8e63a}.period-section[open] summary::after{content:'–'}.period-title{display:flex;flex-direction:column;gap:2px}.period-title small{color:#9aa4af;font-size:.72rem;font-weight:700}.period-count{font-size:.72rem;color:#c8e63a;background:rgba(200,230,58,.09);border:1px solid rgba(200,230,58,.25);border-radius:999px;padding:4px 9px;white-space:nowrap}.period-body{overflow:auto;max-height:420px}.period-body .grid-wrap{border:0;border-radius:0}.compact-note{margin-top:8px;color:#9aa4af;font-size:.78rem;line-height:1.4}.availability-grid.compact{grid-template-columns:74px repeat(7,minmax(90px,1fr));min-width:760px}
+@media(max-width:640px){.wrap{padding-inline:12px}.row{grid-template-columns:1fr}.card{padding:18px}.slot-top{grid-template-columns:1fr auto;gap:5px}.slot-hour{grid-row:2}.bar{grid-column:1/-1}.badge{grid-row:1;grid-column:2}.availability-grid{grid-template-columns:64px repeat(7,86px)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><div class="ball"></div><span>CACYP</span></div>
+    <h1>¿Cuándo<em>jugamos?</em></h1>
+    <p class="sub">Cada jugador marca su disponibilidad horaria. Si el organizador carga canchas, solo se podrán votar esos horarios. Abajo de todo se verán las coincidencias.</p>
+    <div class="topbar"><span class="pill" id="storagePill">Storage: cargando...</span><span class="pill ok" id="courtPill">Canchas: 0 horarios</span></div>
+  </header>
+
+  <div class="card">
+    <div class="slabel"><span class="snum">1</span> Modo organizador</div>
+    <p class="muted">Opcional: si ya sabés la disponibilidad de canchas, entrá con contraseña y marcala. Si no cargás nada, la encuesta funciona igual y todos los horarios quedan disponibles para votar.</p>
+    <div class="row" style="margin-top:12px">
+      <input type="password" id="adminPassword" placeholder="Contraseña de organizador">
+      <button class="btn" onclick="unlockAdmin()">Entrar</button>
+    </div>
+    <div class="admin" id="adminPanel">
+      <div class="divider"></div>
+      <div class="tabs" id="adminQuickTabs">
+        <button class="tab" onclick="selectCourtPreset('week_afternoon')">Tardes de semana</button>
+        <button class="tab" onclick="selectCourtPreset('week_evening')">Noches de semana</button>
+        <button class="tab" onclick="selectCourtPreset('weekend')">Finde</button>
+        <button class="tab" onclick="clearCourtSlots()">Limpiar canchas</button>
+      </div>
+      <div class="grid-wrap admin-grid" id="courtGrid"></div>
+      <div class="legend"><span class="leg"><span class="box"></span> Sin cancha</span><span class="leg"><span class="box av"></span> Cancha disponible</span></div>
+      <div class="hint on" id="courtHint">Clickeá o arrastrá para marcar varios horarios de cancha.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="slabel"><span class="snum">2</span> Tu nombre</div>
+    <input type="text" id="playerName" placeholder="Ej: Juan, Caro, El Pelado..." maxlength="30">
+  </div>
+
+  <div class="card">
+    <div class="slabel"><span class="snum">3</span> Tu disponibilidad</div>
+    <p class="muted">Marcá celda por celda. Abrí solo mañana, tarde o noche según lo que te sirva.</p><p class="compact-note">Tip: si ya sabés que a la mañana no podés, dejá esa sección cerrada.</p>
+    <div class="grid-wrap" id="voteGrid" style="margin-top:14px"></div>
+    <div class="legend"><span class="leg"><span class="box closed"></span> Sin cancha</span><span class="leg"><span class="box av"></span> Disponible para votar</span><span class="leg"><span class="box sel"></span> Tu selección</span></div>
+    <div class="hint" id="selHint">Ingresá tu nombre y elegí tus horarios.</div>
+    <button class="btn primary" id="voteBtn" disabled onclick="submitVote()" style="width:100%;margin-top:10px">Registrar mi disponibilidad</button>
+  </div>
+
+  <div class="card">
+    <div class="slabel"><span class="snum">4</span> Coincidencias del grupo</div>
+    <div class="chips" id="voterChips"></div>
+    <div class="filters" id="resultFilters"></div>
+    <div id="resultsContainer"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// Cambiala si querés otra contraseña. Es simple, no es seguridad fuerte: sirve para evitar que cualquiera toque las canchas por error.
+const ADMIN_PASSWORD = 'tenis123';
+const STORAGE_KEY = 'tenis_cuando_jugamos_shared_v8';
+
+let appData = normalizeData(null);
+let selectedCombos = new Set();
+let openSlots = new Set();
+let resultDayFilter = 'all';
+let isAdmin = false;
+let periodOpenState = { vote:{morning:false, afternoon:true, evening:true}, admin:{morning:false, afternoon:true, evening:false} };
+let isDragging = false;
+let dragMode = null;
+let dragShouldSelect = true;
+let lastDragKey = null;
+let adminChangedDuringDrag = false;
+
+function normalizeData(data){
+  const base = data && typeof data === 'object' ? data : {};
+  return {
+    courtSlots: Array.isArray(base.courtSlots) ? base.courtSlots : [],
+    votes: base.votes && typeof base.votes === 'object' ? base.votes : {},
+    voters: Array.isArray(base.voters) ? base.voters : [],
+    updatedAt: base.updatedAt || null
+  };
+}
+
+function genSlots(){
+  const out=[];
+  for(let h=8*2; h<=21*2; h++){
+    const hour=Math.floor(h/2);
+    const hh=String(hour).padStart(2,'0');
+    const mm=h%2===0?'00':'30';
+    const period=hour<12?'morning':hour<18?'afternoon':'evening';
+    out.push({id:`${hh}:${mm}`, label:`${hh}:${mm}`, period});
+  }
+  return out;
+}
+const ALL_SLOTS = genSlots();
+
+function getWeekDays(){
+  const DOW=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MON=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const today=new Date(); today.setHours(0,0,0,0);
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date(today); d.setDate(today.getDate()+i);
+    return {key:d.toISOString().slice(0,10), label:`${d.getDate()} ${MON[d.getMonth()]}`, dow:i===0?'Hoy':DOW[d.getDay()]};
+  });
+}
+const WEEK_DAYS = getWeekDays();
+
+function comboKey(dayKey, timeId){ return `${dayKey}__${timeId}`; }
+function courtSet(){ return new Set(appData.courtSlots || []); }
+function hasCourtFilter(){ return (appData.courtSlots || []).length > 0; }
+function isSlotPlayable(k){ return !hasCourtFilter() || courtSet().has(k); }
+function allPlayableKeys(){
+  if(hasCourtFilter()) return appData.courtSlots || [];
+  const keys=[];
+  WEEK_DAYS.forEach(day=>ALL_SLOTS.forEach(slot=>keys.push(comboKey(day.key, slot.id))));
+  return keys;
+}
+
+async function loadData(){
+  try{
+    if(window.storage){
+      const r = await window.storage.get(STORAGE_KEY, true);
+      appData = normalizeData(r ? JSON.parse(r.value) : null);
+      setStorageLabel('Storage compartido activo', true);
+      return;
+    }
+  }catch(e){ console.warn('window.storage no disponible', e); }
+  const ls = localStorage.getItem(STORAGE_KEY);
+  appData = normalizeData(ls ? JSON.parse(ls) : null);
+  setStorageLabel('Storage local', false);
+}
+
+async function saveData(){
+  appData.updatedAt = new Date().toISOString();
+  const payload = JSON.stringify(appData);
+  try{
+    if(window.storage){
+      await window.storage.set(STORAGE_KEY, payload, true);
+      setStorageLabel('Storage compartido activo', true);
+      return;
+    }
+  }catch(e){ console.warn('No se pudo guardar en storage compartido', e); }
+  localStorage.setItem(STORAGE_KEY, payload);
+  setStorageLabel('Storage local', false);
+}
+
+function setStorageLabel(text, ok){
+  const p=document.getElementById('storagePill');
+  p.textContent=text;
+  p.className='pill'+(ok?' ok':'');
+}
+
+function updateCourtPill(){
+  const n = (appData.courtSlots || []).length;
+  document.getElementById('courtPill').textContent = n ? `Canchas: ${n} horario${n!==1?'s':''}` : 'Canchas: sin filtro';
+}
+
+function periodInfo(period){
+  return {
+    morning:{label:'☀️ Mañana', range:'08:00 a 11:30'},
+    afternoon:{label:'🌤️ Tarde', range:'12:00 a 17:30'},
+    evening:{label:'🌙 Noche', range:'18:00 a 21:00'}
+  }[period];
+}
+
+function countCourtSlotsByPeriod(period){
+  const cs=courtSet();
+  return ALL_SLOTS.filter(s=>s.period===period).reduce((acc,slot)=>{
+    return acc + WEEK_DAYS.filter(day=>cs.has(comboKey(day.key, slot.id))).length;
+  },0);
+}
+function countPlayableSlotsByPeriod(period){
+  if(!hasCourtFilter()) return ALL_SLOTS.filter(s=>s.period===period).length * WEEK_DAYS.length;
+  return countCourtSlotsByPeriod(period);
+}
+
+function buildOnePeriodGrid(period, mode){
+  const cs=courtSet();
+  const slots = ALL_SLOTS.filter(s=>s.period===period);
+  let html='<div class="grid-wrap"><div class="availability-grid compact">';
+  html += '<div class="cell gh">Hora</div>';
+  WEEK_DAYS.forEach(d=>{ html += `<div class="cell day-head th"><div><small>${d.dow}</small>${d.label}</div></div>`; });
+  slots.forEach(slot=>{
+    html += `<div class="time-head">${slot.label}</div>`;
+    WEEK_DAYS.forEach(day=>{
+      const k=comboKey(day.key, slot.id);
+      const hasCourt=cs.has(k);
+      if(mode==='admin'){
+        html += `<div class="cell ${hasCourt?'available':''}" title="${day.dow} ${day.label} ${slot.label}" data-mode="admin" data-key="${k}" onpointerdown="startCellDrag(event,'admin','${k}')" onpointerenter="dragOverCell(event,'admin','${k}')">${hasCourt?'✓':''}</div>`;
+      }else{
+        const playable=isSlotPlayable(k);
+        const selected=selectedCombos.has(k);
+        const voters=appData.votes[k] || [];
+        html += `<div class="cell ${playable?'available':'closed'} ${selected?'selected':''}" title="${day.dow} ${day.label} ${slot.label}" data-mode="vote" data-key="${k}" onpointerdown="startCellDrag(event,'vote','${k}')" onpointerenter="dragOverCell(event,'vote','${k}')">${playable ? `<span class="count">${selected?'✓':(voters.length || '')}</span>` : ''}</div>`;
+      }
+    });
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function buildGrid(containerId, mode){
+  const c=document.getElementById(containerId);
+  const periods=['morning','afternoon','evening'];
+  c.innerHTML = periods.map(period=>{
+    const info=periodInfo(period);
+    const n=countPlayableSlotsByPeriod(period);
+    const label = hasCourtFilter() ? `${n} con cancha` : 'Todos disponibles';
+    const openDefault = periodOpenState[mode]?.[period] ?? (mode==='vote' ? period !== 'morning' : period === 'afternoon');
+    return `<details class="period-section" ${openDefault?'open':''} ontoggle="savePeriodOpen('${mode}','${period}',this.open)">
+      <summary><span class="period-title">${info.label}<small>${info.range}</small></span><span class="period-count">${label}</span></summary>
+      <div class="period-body">${buildOnePeriodGrid(period, mode)}</div>
+    </details>`;
+  }).join('');
+}
+function savePeriodOpen(mode, period, isOpen){
+  if(!periodOpenState[mode]) periodOpenState[mode]={};
+  periodOpenState[mode][period]=isOpen;
+}
+
+function buildAll(){
+  cleanVotesWithoutCourt();
+  buildGrid('voteGrid','vote');
+  if(isAdmin) buildGrid('courtGrid','admin');
+  buildResults();
+  buildFilters();
+  updateHint();
+  updateCourtPill();
+}
+
+function unlockAdmin(){
+  const pass=document.getElementById('adminPassword').value;
+  if(pass !== ADMIN_PASSWORD){ showToast('Contraseña incorrecta'); return; }
+  isAdmin=true;
+  document.getElementById('adminPanel').classList.add('show');
+  buildGrid('courtGrid','admin');
+  showToast('Modo organizador activo');
+}
+
+async function toggleCourtSlot(k){
+  if(!isAdmin) return;
+  applyCellChange('admin', k, !courtSet().has(k));
+  await saveData();
+  buildAll();
+}
+
+async function selectCourtPreset(type){
+  const cs=courtSet();
+  WEEK_DAYS.forEach((day,idx)=>{
+    ALL_SLOTS.forEach(slot=>{
+      const hour=Number(slot.id.slice(0,2));
+      const isWeekend=[0,6].includes(new Date(day.key+'T00:00:00').getDay());
+      const isWeekday=!isWeekend;
+      const ok =
+        (type==='week_afternoon' && isWeekday && hour>=16 && hour<19) ||
+        (type==='week_evening' && isWeekday && hour>=18 && hour<22) ||
+        (type==='weekend' && isWeekend && hour>=9 && hour<13);
+      if(ok) cs.add(comboKey(day.key,slot.id));
+    });
+  });
+  appData.courtSlots=[...cs].sort();
+  await saveData();
+  buildAll();
+  showToast('Horarios de cancha actualizados');
+}
+
+async function clearCourtSlots(){
+  appData.courtSlots=[];
+  cleanVotesWithoutCourt();
+  await saveData();
+  buildAll();
+  showToast('Canchas limpiadas');
+}
+
+function toggleVoteSlot(k){
+  if(!isSlotPlayable(k)) return;
+  applyCellChange('vote', k, !selectedCombos.has(k));
+  buildGrid('voteGrid','vote');
+  updateHint();
+}
+
+
+function applyCellChange(mode, k, shouldSelect){
+  if(mode==='admin'){
+    const cs=courtSet();
+    shouldSelect ? cs.add(k) : cs.delete(k);
+    appData.courtSlots=[...cs].sort();
+    adminChangedDuringDrag = true;
+    cleanVotesWithoutCourt();
+    return;
+  }
+  if(!isSlotPlayable(k)) return;
+  shouldSelect ? selectedCombos.add(k) : selectedCombos.delete(k);
+}
+
+function startCellDrag(event, mode, k){
+  if(event.button !== undefined && event.button !== 0) return;
+  event.preventDefault();
+  isDragging = true;
+  dragMode = mode;
+  lastDragKey = k;
+  adminChangedDuringDrag = false;
+  dragShouldSelect = mode === 'admin' ? !courtSet().has(k) : !selectedCombos.has(k);
+  applyCellChange(mode, k, dragShouldSelect);
+  if(mode === 'admin'){
+    buildGrid('courtGrid','admin');
+    buildGrid('voteGrid','vote');
+    updateCourtPill();
+    updateHint();
+  }else{
+    buildGrid('voteGrid','vote');
+    updateHint();
+  }
+}
+
+function dragOverCell(event, mode, k){
+  if(!isDragging || dragMode !== mode || lastDragKey === k) return;
+  lastDragKey = k;
+  applyCellChange(mode, k, dragShouldSelect);
+  if(mode === 'admin'){
+    buildGrid('courtGrid','admin');
+    buildGrid('voteGrid','vote');
+    updateCourtPill();
+    updateHint();
+  }else{
+    buildGrid('voteGrid','vote');
+    updateHint();
+  }
+}
+
+document.addEventListener('pointerup', async ()=>{
+  if(!isDragging) return;
+  const wasAdmin = dragMode === 'admin' && adminChangedDuringDrag;
+  isDragging = false;
+  dragMode = null;
+  lastDragKey = null;
+  if(wasAdmin){
+    await saveData();
+    buildAll();
+  }
+});
+
+document.getElementById('playerName').addEventListener('input', updateHint);
+
+function updateHint(){
+  const name=document.getElementById('playerName').value.trim();
+  const el=document.getElementById('selHint');
+  const n=selectedCombos.size;
+  if(n===0){
+    el.textContent=hasCourtFilter() ? 'Elegí tus horarios disponibles en la grilla.' : 'Sin filtro de canchas: podés elegir cualquier horario.'; el.className='hint';
+  }else{
+    el.textContent=`Seleccionaste ${n} horario${n!==1?'s':''}.`; el.className='hint on';
+  }
+  document.getElementById('voteBtn').disabled = !name || n===0;
+}
+
+async function submitVote(){
+  const name=document.getElementById('playerName').value.trim();
+  if(!name || selectedCombos.size===0) return;
+  const validCombos=[...selectedCombos].filter(k=>isSlotPlayable(k));
+  if(validCombos.length===0){ showToast('Elegí horarios disponibles'); return; }
+
+  const existingIndex = appData.voters.findIndex(v=>v.name.toLowerCase()===name.toLowerCase());
+  if(existingIndex !== -1){
+    const oldName = appData.voters[existingIndex].name;
+    appData.voters[existingIndex].combos.forEach(k=>{
+      if(appData.votes[k]) appData.votes[k]=appData.votes[k].filter(v=>v!==oldName);
+    });
+    appData.voters.splice(existingIndex,1);
+  }
+
+  appData.voters.push({name, combos:validCombos});
+  validCombos.forEach(k=>{
+    if(!appData.votes[k]) appData.votes[k]=[];
+    if(!appData.votes[k].includes(name)) appData.votes[k].push(name);
+  });
+  await saveData();
+  document.getElementById('playerName').value='';
+  selectedCombos.clear();
+  buildAll();
+  showToast(`🎾 Listo ${name}, voto registrado`);
+}
+
+async function removeVoter(name){
+  const idx=appData.voters.findIndex(v=>v.name===name);
+  if(idx===-1) return;
+  appData.voters[idx].combos.forEach(k=>{
+    if(appData.votes[k]) appData.votes[k]=appData.votes[k].filter(v=>v!==name);
+  });
+  appData.voters.splice(idx,1);
+  await saveData();
+  buildAll();
+}
+
+function cleanVotesWithoutCourt(){
+  if(!hasCourtFilter()) return;
+  const cs=courtSet();
+  appData.voters = appData.voters.map(v=>({ ...v, combos:(v.combos||[]).filter(k=>cs.has(k)) })).filter(v=>v.combos.length>0);
+  const votes={};
+  appData.voters.forEach(v=>{
+    v.combos.forEach(k=>{
+      if(!votes[k]) votes[k]=[];
+      votes[k].push(v.name);
+    });
+  });
+  appData.votes=votes;
+  selectedCombos = new Set([...selectedCombos].filter(k=>cs.has(k)));
+}
+
+function buildFilters(){
+  const c=document.getElementById('resultFilters');
+  c.innerHTML = [['all','Todos'],...WEEK_DAYS.map(d=>[d.key,`${d.dow} ${d.label.split(' ')[0]}`])].map(([k,l])=>`<button class="fbtn ${resultDayFilter===k?'active':''}" onclick="setResultDay('${k}')">${l}</button>`).join('');
+}
+
+function setResultDay(k){ resultDayFilter=k; buildFilters(); buildResults(); }
+
+function buildResults(){
+  const c=document.getElementById('resultsContainer');
+  const chips=document.getElementById('voterChips');
+  const total=appData.voters.length;
+  chips.innerHTML = total===0 ? '<span class="muted">Nadie votó todavía...</span>' : appData.voters.map(v=>`<div class="chip">${escapeHtml(v.name)}<button onclick="removeVoter('${escapeAttr(v.name)}')">×</button></div>`).join('');
+  if(total===0){ c.innerHTML='<div class="empty"><span class="ico">🎾</span>Las coincidencias aparecen cuando alguien vote.</div>'; return; }
+
+  const allowedDays = resultDayFilter==='all' ? new Set(WEEK_DAYS.map(d=>d.key)) : new Set([resultDayFilter]);
+  const rows = allPlayableKeys()
+    .filter(k=>allowedDays.has(k.split('__')[0]))
+    .map(k=>{
+      const [dayKey,time]=k.split('__');
+      const day=WEEK_DAYS.find(d=>d.key===dayKey);
+      const names=appData.votes[k]||[];
+      return {k,day,time,names,count:names.length,pct:Math.round(names.length/total*100)};
+    })
+    .filter(r=>r.count>0)
+    .sort((a,b)=>b.count-a.count || a.day.key.localeCompare(b.day.key) || a.time.localeCompare(b.time));
+
+  if(rows.length===0){ c.innerHTML='<div class="empty">Sin votos para este filtro.</div>'; return; }
+  c.innerHTML = `<div class="results-list">${rows.map(r=>{
+    const full=r.count===total && total>1;
+    const open=openSlots.has(r.k);
+    return `<div class="slot-card">
+      <div class="slot-top" onclick="toggleNames('${r.k}')">
+        <div class="slot-date">${r.day.dow} ${r.day.label}</div>
+        <div class="slot-hour">${r.time}</div>
+        <div class="bar"><div class="fill" style="width:${r.pct}%"></div></div>
+        <div class="badge">${full?'✦ Todos':`${r.count} de ${total}`}</div>
+      </div>
+      ${open?`<div class="names">${r.names.map(n=>`<span class="ntag">👤 ${escapeHtml(n)}</span>`).join('')}</div>`:''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function toggleNames(k){ openSlots.has(k) ? openSlots.delete(k) : openSlots.add(k); buildResults(); }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function escapeAttr(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+let toastTimer;
+function showToast(msg){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+async function init(){
+  await loadData();
+  buildAll();
+}
+init();
+</script>
+</body>
+</html>
