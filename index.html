@@ -175,7 +175,50 @@ window.dragOverCell=(event,mode,k)=>{ if(!isDragging||dragMode!==mode||lastDragK
 document.addEventListener('pointerup',async()=>{ if(!isDragging) return; const save=dragMode==='admin'&&adminChangedDuringDrag; isDragging=false; dragMode=null; lastDragKey=null; if(save) await savePatch({courtSlots:appData.courtSlots}); });
 function buildFilters(){ const c=document.getElementById('resultFilters'); c.innerHTML=[['all','Todos'],...WEEK_DAYS.map(d=>[d.key,`${d.dow} ${d.label.split(' ')[0]}`])].map(([k,l])=>`<button class="fbtn ${resultDayFilter===k?'active':''}" onclick="setResultDay('${k}')">${l}</button>`).join(''); }
 window.setResultDay=(k)=>{resultDayFilter=k; buildFilters(); buildResults();};
-function buildResults(){ const c=document.getElementById('resultsContainer'), chips=document.getElementById('voterChips'); const voters=votersArray(), votes=buildVotesIndex(), total=voters.length; chips.innerHTML=total? voters.map(v=>`<div class="chip">${escapeHtml(v.name)}${isAdmin?`<button onclick="removeVoter('${v.id}')">×</button>`:''}</div>`).join(''):'<span class="muted">Nadie votó todavía...</span>'; if(total<2){ c.innerHTML='<div class="empty"><span class="ico">🎾</span>Las coincidencias aparecen cuando voten al menos 2 personas.</div>'; return;} const allowed=resultDayFilter==='all'?new Set(WEEK_DAYS.map(d=>d.key)):new Set([resultDayFilter]); const rows=allPlayableKeys().filter(k=>allowed.has(k.split('__')[0])).map(k=>{const [dayKey,time]=k.split('__'); const day=WEEK_DAYS.find(d=>d.key===dayKey); const names=votes[k]||[]; return {k,day,time,names,count:names.length,pct:Math.round(names.length/total*100)};}).filter(r=>r.count>=2).sort((a,b)=>b.count-a.count||a.day.key.localeCompare(b.day.key)||a.time.localeCompare(b.time)); if(!rows.length){ c.innerHTML='<div class="empty">Todavía no hay coincidencias entre 2 o más jugadores para este filtro.</div>'; return;} c.innerHTML=rows.map(r=>{const full=r.count===total; const open=openSlots.has(r.k); return `<div class="slot-card"><div class="slot-top" onclick="toggleNames('${r.k}')"><div class="slot-date">${r.day.dow} ${r.day.label}</div><div class="slot-hour">${r.time}</div><div class="bar"><div class="fill" style="width:${r.pct}%"></div></div><div class="badge">${full?'✦ Todos':`${r.count} de ${total}`}</div></div>${open?`<div class="names">${r.names.map(n=>`<span class="ntag">👤 ${escapeHtml(n)}</span>`).join('')}</div>`:''}</div>`;}).join(''); }
+function buildResults(){
+  const c=document.getElementById('resultsContainer'), chips=document.getElementById('voterChips');
+  const voters=votersArray(), votes=buildVotesIndex(), total=voters.length;
+  chips.innerHTML=total
+    ? voters.map(v=>`<div class="chip">${escapeHtml(v.name)}${isAdmin?`<button onclick="removeVoter('${v.id}')">×</button>`:''}</div>`).join('')
+    : '<span class="muted">Nadie votó todavía...</span>';
+
+  if(total<2){
+    c.innerHTML='<div class="empty"><span class="ico">🎾</span>Las coincidencias aparecen cuando voten al menos 2 personas.</div>';
+    return;
+  }
+
+  const allowed=resultDayFilter==='all'?new Set(WEEK_DAYS.map(d=>d.key)):new Set([resultDayFilter]);
+  const rows=allPlayableKeys()
+    .filter(k=>allowed.has(k.split('__')[0]))
+    .map(k=>{
+      const [dayKey,time]=k.split('__');
+      const day=WEEK_DAYS.find(d=>d.key===dayKey);
+      const names=votes[k]||[];
+      return {k,day,time,names,count:names.length,pct:Math.round(names.length/total*100)};
+    })
+    // Solo se muestran coincidencias reales: 2 o más personas.
+    .filter(r=>r.count>=2)
+    // Jerarquía: primero más jugadores coinciden, después fecha y hora.
+    .sort((a,b)=>b.count-a.count || a.day.key.localeCompare(b.day.key) || a.time.localeCompare(b.time));
+
+  if(!rows.length){
+    c.innerHTML='<div class="empty">Todavía no hay coincidencias entre 2 o más jugadores para este filtro.</div>';
+    return;
+  }
+
+  let lastCount=null;
+  let html='';
+  rows.forEach(r=>{
+    if(r.count!==lastCount){
+      lastCount=r.count;
+      html+=`<div class="rank-title">Coinciden ${r.count} jugador${r.count!==1?'es':''}</div>`;
+    }
+    const full=r.count===total;
+    const open=openSlots.has(r.k);
+    html+=`<div class="slot-card"><div class="slot-top" onclick="toggleNames('${r.k}')"><div class="slot-date">${r.day.dow} ${r.day.label}</div><div class="slot-hour">${r.time}</div><div class="bar"><div class="fill" style="width:${r.pct}%"></div></div><div class="badge">${full?'✦ Todos':`${r.count} de ${total}`}</div></div>${open?`<div class="names">${r.names.map(n=>`<span class="ntag">👤 ${escapeHtml(n)}</span>`).join('')}</div>`:''}</div>`;
+  });
+  c.innerHTML=html;
+}
 window.toggleNames=(k)=>{openSlots.has(k)?openSlots.delete(k):openSlots.add(k); buildResults();};
 function escapeHtml(s){ return String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 let toastTimer; function showToast(msg){ clearTimeout(toastTimer); const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); toastTimer=setTimeout(()=>t.classList.remove('show'),2500); }
